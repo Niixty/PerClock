@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia em Porcentagem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: background 1s; /* transição suave do fundo */
+        }
+        #display {
+            text-align: center;
+            z-index: 1;  /* Garante que o texto fique na frente do gradiente de fundo */
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border: none;
+            background-color: #444;
+            color: #FFF;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #battery {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="display">
+        <h1><span id="battery">🔋</span><span id="percentage">0%</span></h1>
+        <h2 id="time">00:00:00</h2>
+        <h3 id="dayOfWeek"></h3>
+    </div>
+    <button id="toggle">Esconder detalhes</button>
+
+    <script>
+        let showSeconds = true;
+        const daysOfWeek = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+
+        function getBatteryIcon(percentage) {
+            if (percentage >= 75) return '🔋';
+            if (percentage >= 50) return '🔋';
+            if (percentage >= 25) return '🔋';
+            return '🔋';
+        }
+
+        function setBackground(percentage) {
+            const red = [255, 0, 0];
+            const orange = [255, 165, 0];
+            const green = [0, 128, 0];
+
+            const r = red[0] + percentage * (green[0] - red[0]) / 100;
+            const g = red[1] + percentage * (green[1] - red[1]) / 100;
+            const b = red[2] + percentage * (green[2] - red[2]) / 100;
+
+            const bgColor = `rgb(${r}, ${g}, ${b})`;
+            document.body.style.background = bgColor;
+        }
+
+        function updateDisplay() {
+            let now = new Date();
+            let secondsSinceMidnight = (now.getHours() * 3600) + (now.getMinutes() * 60) + now.getSeconds();
+            let percentage = (secondsSinceMidnight / 86400) * 100; 
+
+            let timeStr = now.toTimeString().split(' ')[0];
+            if (!showSeconds) {
+                timeStr = timeStr.substring(0, 5);
+            }
+
+            setBackground(percentage);
+            document.getElementById('battery').textContent = getBatteryIcon(percentage);
+            document.getElementById('percentage').textContent = percentage.toFixed(2) + '%';
+            document.getElementById('time').textContent = timeStr;
+            document.getElementById('dayOfWeek').textContent = daysOfWeek[now.getDay()];
+        }
+
+        document.getElementById('toggle').addEventListener('click', function() {
+            showSeconds = !showSeconds;
+            updateDisplay();
+        });
+
+        setInterval(updateDisplay, 1000);
+        updateDisplay();
+    </script>
+</body>
+</html>
